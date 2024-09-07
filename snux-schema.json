@@ -1,0 +1,219 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "TMUX snippets",
+    "description": "Command / code snippets in TMUX",
+    "definitions": {
+        "commands": {
+            "type": "object",
+            "description": "commands are executed in the order as they appear in the array",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": [
+                        "switch-pane",
+                        "select-from-list",
+                        "execute",
+                        "ask",
+                        "send-to-pane",
+                        "send-to-new-pane",
+                        "pipe-pane-stop",
+                        "pipe-pane-start",
+                        "print",
+                        "sleep"
+                    ],
+                    "description": "the action to take"
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "action": {
+                                "const": "sleep"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "seconds": {
+                                "type": "integer",
+                                "description": "sleep for X seconds"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "action": {
+                                "const": "execute"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "code": {
+                                "type": "string",
+                                "description": "the code to execute"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "action": {
+                                "const": "send-to-new-pane"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "code": {
+                                "type": "string",
+                                "description": "the code to execute"
+                            },
+                            "enter": {
+                                "type": "boolean",
+                                "description": "send a CR after sending code"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "action": {
+                                "const": "send-to-pane"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "code": {
+                                "type": "string",
+                                "description": "the code to execute"
+                            },
+                            "enter": {
+                                "type": "boolean",
+                                "description": "send a CR after sending code"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "action": {
+                                "const": "select-from-list"
+                            }
+                        }
+                    }
+                },
+                {
+                    "then": {
+                        "properties": {
+                            "variable_name": {
+                                "type": "string",
+                                "description": "Use the result as %{<variable_name} in remaining code lines"
+                            },
+                            "list": {
+                                "type": "array"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "action": {
+                                "const": "ask"
+                            }
+                        }
+                    }
+                },
+                {
+                    "then": {
+                        "properties": {
+                            "variable_name": {
+                                "type": "string",
+                                "description": "Use this name as %{<variable_name} in remaining code lines"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "action": {
+                                "const": "print"
+                            }
+                        }
+                    }
+                },
+                {
+                    "then": {
+                        "properties": {
+                            "text": {
+                                "type": "string",
+                                "description": "the text to print"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "action": {
+                                "const": "pipe-pane-start"
+                            }
+                        }
+                    }
+                },
+                {
+                    "then": {
+                        "properties": {
+                            "output-filename": {
+                                "type": "string",
+                                "description": "Local file to capture to"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "snippet": {
+            "description": "Defines a snippet",
+            "type": "object",
+            "properties": {
+                "title": {
+                    "description": "title as shown in fzf menu",
+                    "type": "string"
+                },
+                "tags": {
+                    "description": "tags",
+                    "type": "array"
+                },
+                "description": {
+                    "description": "(optional) description to be shown in fzf preview. Use \n for new line",
+                    "type": "string"
+                },
+                "commands": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/commands"
+                    }
+                }
+            }
+        }
+    },
+    "type": "object",
+    "properties": {
+        "snippets": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/snippet"
+            }
+        }
+    }
+}

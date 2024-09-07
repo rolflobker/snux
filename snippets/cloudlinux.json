@@ -1,0 +1,103 @@
+{
+  "schema": "file://home/rolf/snux/snux-schema.json",
+  "snippets": [
+    {
+      "title": "cloudlinux: show usage for given accounts (24h)",
+      "description": "see title",
+      "commands": [
+        {
+          "action": "ask",
+          "prompt": "username: ",
+          "variable_name": "username"
+        },
+        {
+          "action": "send-to-pane",
+          "code": "printf '\n' && cloudlinux-statistics --period 1d --json --show cpu,io,iops --order-by cpu | jq -r '(.users[] | [.username, .domain, .usage.cpu.lve, .usage.io.lve, .usage.iops.lve, .limits.cpu.lve, .limits.io.lve, .limits.iops.lve, .faults.cpu.lve, .faults.io.lve, .faults.iops.lve] | @csv)' | column -t -s, --table-columns 'user,domain,cpu,io,iops,limits_cpu,limits_io,limits_iops,faults_cpu,faults_io,faults_iops' | grep -E '%{username}|limits'",
+          "enter": false
+        }
+      ]
+    },
+    {
+      "title": "cloudlinux: show top usage accounts (CPU)",
+      "description": "see title",
+      "commands": [
+        {
+          "action": "ask-user-select-from-list",
+          "variable_name": "period",
+          "list": [
+            "1d",
+            "4h",
+            "1h"
+          ]
+        },
+        {
+          "action": "send-to-pane",
+          "code": "printf '\n' && cloudlinux-statistics --period %{period} --json --limit 10 --show cpu,io,iops --order-by cpu | jq -r '(.users[] | [.username, .domain, .usage.cpu.lve, .usage.io.lve, .usage.iops.lve, .limits.cpu.lve, .limits.io.lve, .limits.iops.lve, .faults.cpu.lve, .faults.io.lve, .faults.iops.lve] | @csv)' | column -t -s, --table-columns 'user,domain,cpu,io,iops,limits_cpu,limits_io,limits_iops,faults_cpu,faults_io,faults_iops'",
+          "enter": true
+        }
+      ]
+    },
+    {
+      "title": "cloudlinux: show top usage accounts (IO)",
+      "description": "see title",
+      "commands": [
+        {
+          "action": "ask-user-select-from-list",
+          "variable_name": "period",
+          "list": [
+            "1d",
+            "4h",
+            "1h"
+          ]
+        },
+        {
+          "action": "send-to-pane",
+          "code": "printf '\n' && cloudlinux-statistics --period %{period} --json --limit 10 --show cpu,io,iops --order-by io | jq -r '(.users[] | [.username, .domain, .usage.cpu.lve, .usage.io.lve, .usage.iops.lve, .limits.cpu.lve, .limits.io.lve, .limits.iops.lve, .faults.cpu.lve, .faults.io.lve, .faults.iops.lve] | @csv)' | column -t -s, --table-columns 'user,domain,cpu,io,iops,limits_cpu,limits_io,limits_iops,faults_cpu,faults_io,faults_iops'",
+          "enter": true
+        }
+      ]
+    },
+    {
+      "title": "cloudlinux: LVE: top 10 users",
+      "description": "see title",
+      "commands": [
+        {
+          "action": "ask-user-select-from-list",
+          "variable_name": "period",
+          "list": [
+            "1d",
+            "4h",
+            "1h"
+          ]
+        },
+        {
+          "action": "send-to-pane",
+          "code": "lveinfo -d --period %{period} --json --show-columns=ID,aIOPS,mIOPS,aCPU,aEP,aVMem,aPMem | jq -r '(.data[] | [.ID, .aIOPS, .mIOPS, .aCPU, .aEP, .aVMem, .aPMem] | @csv)' | sort -t ',' -rhk2 | head -n10 | column -t -s, --table-columns 'User,avg IOPS,Max IOPS,avg CPU,avg Entry Processes,avg Virtual Memory Usage,avg Physical Memory Usage'",
+          "enter": false
+        }
+      ]
+    },
+    {
+      "title": "[newpane] [all servers] cloudlinux: show top usage accounts - per server",
+      "description": "show top usage accounts",
+      "commands": [
+        {
+          "action": "send-to-new-pane",
+          "code": "clush_whs \"cloudlinux-statistics --period 1d --json --limit 10 --show cpu,io,iops --order-by cpu | jq -r '(.users[] | [.username, .domain, .usage.cpu.lve, .usage.io.lve, .usage.iops.lve, .limits.cpu.lve, .limits.io.lve, .limits.iops.lve, .faults.cpu.lve, .faults.io.lve, .faults.iops.lve] | @csv)' | column -t -s, --table-columns 'user,domain,cpu,io,iops,limits_cpu,limits_io,limits_iops,faults_cpu,faults_io,faults_iops'\"",
+          "enter": false
+        }
+      ]
+    },
+    {
+      "title": "[newpane] [all servers] cloudlinux: overall platform top CPU users",
+      "description": "show top usage accounts",
+      "commands": [
+        {
+          "action": "send-to-new-pane",
+          "code": "clush_whs_lines \"cloudlinux-statistics --period 1d --json --limit 10 --show cpu,io,iops --order-by cpu | jq -r '(.users[] | [.username, .domain, .usage.cpu.lve, .usage.io.lve, .usage.iops.lve, .limits.cpu.lve, .limits.io.lve, .limits.iops.lve, .faults.cpu.lve, .faults.io.lve, .faults.iops.lve] | @csv)'\" | awk -F ':' '{print $2}' | sort -t ',' -nk3 | column -t -s, --table-columns 'user,domain,cpu,io,iops,limits_cpu,limits_io,limits_iops,faults_cpu,faults_io,faults_iops'",
+          "enter": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "file://$HOME/snux-schema.json",
+  "snippets": [
+    {
+      "title": "list user-installed packages",
+      "tags" : ["dnf"],
+      "description": "see title",
+      "commands": [
+        {"action": "send-to-pane","code": "ls"},
+        {
+          "action": "send-to-pane",
+          "code": "dnf repoquery --userinstalled",
+          "enter": true
+        }
+      ]
+    },
+    {
+      "title": "get $releasever info",
+      "tags" : ["dnf"],
+      "description": "see title",
+      "commands": [
+        {
+          "action": "send-to-pane",
+          "code": "python -c 'import dnf, json; db = dnf.dnf.Base(); print(json.dumps(db.conf.substitutions, indent=2))'",
+          "enter": true
+        }
+      ]
+    }
+  ]
+}

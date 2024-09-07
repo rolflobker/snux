@@ -1,0 +1,39 @@
+{
+  "schema": "file://$HOME/snux/snux-schema.json",
+  "snippets": [
+    {
+      "title": "Clear active session lock",
+      "description": "see title",
+      "tags": ["chrome"],
+      "commands": [
+        {
+          "action": "send-to-pane",
+          "code": "rm $HOME/.config/chromium/Singleton*",
+          "enter": true
+        }
+      ]
+    },
+    {
+      "title": "[shell] journalctl since 2 days ago",
+      "description": "see title",
+      "commands": [
+        {
+          "action": "send-to-pane",
+          "code": "journalctl --since '2 days ago'",
+          "enter": false
+        }
+      ]
+    },
+    {
+      "title": "[shell] unset HISTFILE",
+      "description": "adasd",
+      "commands": [
+        {
+          "action": "send-to-pane",
+          "code": "unset HISTFILE",
+          "enter": true
+        }
+      ]
+    }
+  ]
+}
