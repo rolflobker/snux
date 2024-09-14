@@ -2,6 +2,26 @@
 
 **THIS IS A WORK IN PROGRESS. MIGHT NOT EVEN WORK**
 
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [SNUX - SNippets in tmUX **(WIP)**](#snux---snippets-in-tmux-wip)
+- [Setup](#setup)
+- [Snippet format](#snippet-format)
+- [JSON Schema](#json-schema)
+- [Neovim completion](#neovim-completion)
+- [Filter by category](#filter-by-category)
+- [General](#general)
+- [Actions](#actions)
+    - [`sleep`](#sleep)
+    - [`execute`](#execute)
+    - [`send-to-pane`](#send-to-pane)
+    - [`ask`](#ask)
+    - [`select-from-list`](#select-from-list)
+
+<!-- markdown-toc end -->
+
+
 Displays a list of (code) snippets in a TMUX popup and sends the selection to a (new) pane.
 
 Additional features include:
@@ -18,7 +38,6 @@ My preference is to have `C-f` the leader key for `tmux` (instead of `C-b`) and 
 
 Upon launching, this tool loads `snippets` from one or more files and presents a list of all the titles.  
 It then uses the (awesome!) `fzf` tool to allow fuzzy find what you type.
-
 
 The main reason I wrote this little tool is to have a place where I can store all those long one-liners that I often use, or to store longer commands that I may not always remember correctly.
 
@@ -72,7 +91,7 @@ bind C-u display-popup -h 50% -y 30% -w 80% -E "$HOME/snux/snux.py"
 The code reads snippets from multiple files in a given folder.
 This allows you to, for example maintain categories (each a single file)
 
-By default all snippets are loaded and displayed but a later version may allow filtering of categories.
+    By default all snippets are loaded and displayed but a later version may allow filtering of categories.
 
 Each snippet file follows the following `json` format:
 
