@@ -58,12 +58,16 @@ fzf_preview = f"{HOME}/snux/snux.py "
 
 fzf_options = "--preview='" + fzf_preview + r"--describe {}' --preview-window=bottom,20% --reverse --bind 'ctrl-j:jump-accept'"
 
-# fzf = FzfPrompt(default_options=r"--preview='/home/rolf/snux/snux.py --describe {}' --preview-window=bottom,20% --reverse --bind 'ctrl-j:jump-accept'")
+# fzf = FzfPrompt(default_options=r"--preview='/home/rolf/snux/snux.py
+# --describe {}' --preview-window=bottom,20% --reverse
+# --bind 'ctrl-j:jump-accept'")
+
 fzf = FzfPrompt(default_options=fzf_options)
 # fzf = FzfPrompt(default_options="--reverse --bind 'ctrl-j:jump-accept'")
 
 
 def show_snippet_titles():
+    """Yield titles for use in fzf."""
     for snippet in snippets:
         pre_string = ""
         if 'tags' in snippet.keys():
@@ -73,7 +77,13 @@ def show_snippet_titles():
         yield pre_string + snippet["title"]
 
 
+def something():
+    print("did something")
+    return
+
+
 def current_pane_id():
+    """Get current pane ID for TMUX."""
     current_pane_id = (
         subprocess.check_output(
             "tmux display-message -p '#D'", shell=True).strip()
@@ -82,6 +92,7 @@ def current_pane_id():
 
 
 def current_session_id():
+    """Get current TMUX session ID."""
     current_session_id = (
         subprocess.check_output(
             "tmux display-message -p '#{session_id}'", shell=True
@@ -103,18 +114,21 @@ def current_session_id():
 
 
 def ask(prompt, variable_name):
+    """Ask user input."""
     """This adds information to the global `tmux_variables`"""
     tmux_variables[variable_name] = input(prompt)
     return
 
 
 def show_list(list: list):
+    """Do something."""
     for field in list:
         yield field
     return
 
 
 def replace_variables(string):
+    """Replace variables in strings."""
     variables_to_replace = re.findall("%{[a-zA-Z_-]*}", string)
     for variable_to_replace in variables_to_replace:
         variable_name = variable_to_replace[2:-1]
@@ -124,6 +138,7 @@ def replace_variables(string):
 
 
 def main():
+    """Run main function."""
     # global current_pane
     # global active_pane
     # global other_pane
@@ -233,12 +248,19 @@ if __name__ == "__main__":
         type=str,
         help="The title of the snippet to show its description"
     )
+    parser.add_argument(
+        "--modify",
+        help="Modify snippets",
+        action="store_true"
+    )
     args = parser.parse_args()
-    if args.describe is not None:
+    if args.describe:
         for snippet in snippets:
             if snippet['title'] == args.describe:
                 description = snippet['description']
                 print(description)
                 break
+    if args.modify:
+        print("will modify")
     else:
         main()
