@@ -62,7 +62,6 @@ Launching my `snux` tool, fuzzy finding the desired command and sending it to a 
   cloudlinux: overall platform top CPU users
 ▌ cloudlinux: show top usage accounts
 
-
 ╭─────────────────────────────────────────────────────────────────────╮
 │ show top usage accounts                                             │
 ╰─────────────────────────────────────────────────────────────────────╯

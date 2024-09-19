@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+"""SNUX - TMUX snippets."""
 # pip install pyfzf-iter
 
 import json
+import curses
 # import libtmux
 from pyfzf import FzfPrompt
 from time import sleep
@@ -28,6 +30,8 @@ import argparse
 
 tmuxbin = "/usr/bin/tmux "
 tmux_variables = {}
+
+editor = "nvim"
 
 HOME = os.environ['HOME']
 
@@ -69,17 +73,14 @@ fzf = FzfPrompt(default_options=fzf_options)
 def show_snippet_titles():
     """Yield titles for use in fzf."""
     for snippet in snippets:
-        pre_string = ""
-        if 'tags' in snippet.keys():
-            for tag in snippet['tags']:
-                pre_string += "[" + tag + "]"
-            pre_string += " "
-        yield pre_string + snippet["title"]
-
-
-def something():
-    print("did something")
-    return
+        # following option to work with tags is removed for simplicity
+        # pre_string = ""
+        # if 'tags' in snippet.keys():
+        #     for tag in snippet['tags']:
+        #         pre_string += "[" + tag + "]"
+        #     pre_string += " "
+        yield snippet["title"]
+        # yield pre_string + snippet["title"]
 
 
 def current_pane_id():
@@ -149,8 +150,9 @@ def main():
     # active_pane = current_pane
 
     """show a list of snippets"""
-    chosen_snippet = fzf.prompt(show_snippet_titles())[0]
-    result = re.sub(r'^\[[^\]]*\](?:\s*\[[^\]]*\])?\s*', '', chosen_snippet)
+    result = fzf.prompt(show_snippet_titles())[0]
+    # uncomment next line if working with tags
+    # result = re.sub(r'^\[[^\]]*\](?:\s*\[[^\]]*\])?\s*', '', chosen_snippet)
 
     snippet = [
         snippet for snippet in snippets if snippet["title"] == result
@@ -241,6 +243,102 @@ def main():
                 )
 
 
+def modify():
+    """Modify snippets."""
+    result = fzf.prompt(show_snippet_titles())[0]
+    # uncomment next line if tags have been added to the strings
+    #
+    # result = re.sub(r'^\[[^\]]*\](?:\s*\[[^\]]*\])?\s*', '', chosen_snippet)
+
+    # find the relevant file
+    if result:
+        for snippet_file in snippet_files:
+            with open(snippet_file, "r") as file:
+                data = file.read()
+                if result in data:
+                    relevant_snippet_file = snippet_file
+                    break
+    with open(relevant_snippet_file, "r") as file:
+        data = json.loads(file.read())
+        this_snippet = get_snippet_by_title(data['snippets'],result)
+        commands = this_snippet['commands']
+        new_commands = curses.wrapper(lambda stdscr: tui(stdscr, commands))
+        print(new_commands)
+    # First show all snippets
+    # short_names = [filepath.replace(snippet_directory, "") for filepath in snippet_files]
+    # clean_names = [jsonpath.replace(".json", "") for jsonpath in short_names]
+    # selected = snippet_directory + fzf.prompt(clean_names)[0] + ".json"
+    # subprocess.call(editor + " " + selected, shell=True)
+
+
+def get_snippet_by_title(snippets, title):
+    """Get snippet by title."""
+    for snippet in snippets:
+        if snippet["title"] == title:
+            return snippet
+    return None
+
+
+def render_command(command):
+    """Render single command."""
+    lines = []
+    for key, value in command.items():
+        lines.append(f"     {key}: {value}")  # Indent each line by 5 characters
+    return lines
+
+
+def tui(stdscr, commands):
+    """Render list of commands."""
+    curses.curs_set(0)  # Hide cursor
+    current_row = 0
+    moving_mode = False
+    initial_commands = commands
+    # Initialize color pair for highlighting
+    curses.start_color()
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    while True:
+        stdscr.clear()
+        for idx, command in enumerate(commands):
+            # Render command dynamically
+            command_lines = render_command(command)
+            # Highlight the current row
+            if idx == current_row:
+                stdscr.attron(curses.color_pair(1))
+            # Print the incrementing number and the first line of the command
+            stdscr.addstr(f"{idx + 1}:   {command_lines[0].strip()}\n")  # Strip to avoid extra spaces
+            # Print remaining lines with indentation
+            for line in command_lines[1:]:
+                stdscr.addstr(f"{line}\n")
+            stdscr.addstr("\n")  # Empty line between commands
+            # Turn off highlighting
+            if idx == current_row:
+                stdscr.attroff(curses.color_pair(1))
+        stdscr.refresh()
+        key = stdscr.getch()
+        if moving_mode:
+            if key in [curses.KEY_UP, ord('k')] and current_row > 0:
+                commands[current_row], commands[current_row - 1] = commands[current_row - 1], commands[current_row]
+                current_row -= 1
+            elif key in [curses.KEY_DOWN, ord('j')] and current_row < len(commands) - 1:
+                commands[current_row], commands[current_row + 1] = commands[current_row + 1], commands[current_row]
+                current_row += 1
+            elif key in [curses.KEY_ENTER, ord('\n')]:
+                moving_mode = False
+            elif key in [ord('q'), 27]:  # Esc key
+                moving_mode = False
+        # Navigation logic
+        if key in [curses.KEY_UP, ord('k')] and current_row > 0:
+            current_row -= 1
+        elif key in [curses.KEY_DOWN, ord('j')] and current_row < len(commands) - 1:
+            current_row += 1
+        elif key == ord('m'):
+            moving_mode = True
+        elif key == ord('q'):  # Quit on 'q'
+            return initial_commands
+        elif key == ord('s'):
+            return commands
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -254,13 +352,14 @@ if __name__ == "__main__":
         action="store_true"
     )
     args = parser.parse_args()
-    if args.describe:
+    if args.describe is not None:
         for snippet in snippets:
             if snippet['title'] == args.describe:
                 description = snippet['description']
                 print(description)
                 break
+        exit()
     if args.modify:
-        print("will modify")
+        modify()
     else:
         main()
