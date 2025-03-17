@@ -29,7 +29,7 @@
 3. Add binding in tmux
 
 ```bash
-git clone https://github.com/rolflobker/snux ~/.config/tmux/scripts/
+git clone https://github.com/rolflobker/snux ~/.config/tmux/scripts/snux
 git clone https://github.com/rolflobker/snux-snippets ~/.config/snux/snippets/public
 echo 'bind C-u display-popup -h 60% -y 50% -w 70% -E "~/.config/tmux/scripts/snux/snux.py"' >> ~/.config/tmux/tmux.conf
 ```

@@ -10,25 +10,7 @@ import re
 import subprocess
 from time import sleep
 
-# import curses
-# import libtmux
 from pyfzf import FzfPrompt
-
-# pip install libtmux
-# https://github.com/tmux-python/libtmux
-
-""" https://pypi.org/project/pyfzf-iter/ """
-
-# snippet_file = "/home/rolf/projects/tmux-snips-python/snippets.json"
-#
-# keep_open = True
-
-# if using display-popup, do not switch panes even if this is in the snippet
-# using_display_popup = True tmuxbin = "/usr/bin/tmux "
-
-# p = libtmux.window
-
-# tmux = libtmux.Server()
 
 tmuxbin = "/usr/bin/tmux "
 tmux_variables = {}
@@ -38,8 +20,7 @@ editor = "nvim"
 HOME = os.environ["HOME"]
 
 snippet_directory = f"{HOME}/.config/snux/snippets/"
-
-# read all the snippets files
+fzf_preview = f"{HOME}/.config/tmux/scripts/snux/snux.py "
 
 snippets = []
 
@@ -54,39 +35,19 @@ for snippet_file in snippet_files:
         for snip in snips:
             snippets.append(snip)
 
-# with open(file=snippet_file, mode="r") as snippets:
-#     snippets = json.loads(snippets.read())
-#     # TODO: write proper json schema
-
-# fzf = FzfPrompt()
-
-fzf_preview = f"{HOME}/snux/snux.py "
-
 fzf_options = (
     "--preview='"
     + fzf_preview
     + r"--describe {}' --preview-window=bottom,20% --reverse --bind 'ctrl-j:jump-accept'"
 )
 
-# fzf = FzfPrompt(default_options=r"--preview='/home/rolf/snux/snux.py
-# --describe {}' --preview-window=bottom,20% --reverse
-# --bind 'ctrl-j:jump-accept'")
-
 fzf = FzfPrompt(default_options=fzf_options)
-# fzf = FzfPrompt(default_options="--reverse --bind 'ctrl-j:jump-accept'")
 
 
 def show_snippet_titles():
     """Yield titles for use in fzf."""
     for snippet in snippets:
-        # following option to work with tags is removed for simplicity
-        # pre_string = ""
-        # if 'tags' in snippet.keys():
-        #     for tag in snippet['tags']:
-        #         pre_string += "[" + tag + "]"
-        #     pre_string += " "
         yield snippet["title"]
-        # yield pre_string + snippet["title"]
 
 
 def current_pane_id():
@@ -105,18 +66,6 @@ def current_session_id():
         ).strip()
     ).decode("utf-8")
     return current_session_id
-
-
-# def get_last_pane_output():
-#     """This gets the *visible* output in the pane"""
-#     pane_contents = last_pane().cmd("capture-pane", "-p").stdout
-#     return pane_contents
-#
-#
-# def get_last_pane_entire_buffer():
-#     """This gets everything in the pane including the entire scrollback"""
-#     pane_contents = last_pane().cmd("capture-pane", "-p", "-S", "-").stdout
-#     return pane_contents
 
 
 def ask(prompt, variable_name):
@@ -144,20 +93,12 @@ def replace_variables(string):
 
 def main():
     """Run main function."""
-    # global current_pane
-    # global active_pane
-    # global other_pane
     current_pane = current_pane_id()
     subprocess.call(tmuxbin + "select-pane -t {previous}", shell=True)
-    # other_pane = current_pane_id()
     subprocess.call(tmuxbin + "select-pane -t " + current_pane, shell=True)
-    # active_pane = current_pane
 
     """show a list of snippets"""
     result = fzf.prompt(show_snippet_titles())[0]
-    # uncomment next line if working with tags
-    # result = re.sub(r'^\[[^\]]*\](?:\s*\[[^\]]*\])?\s*', '', chosen_snippet)
-
     snippet = [snippet for snippet in snippets if snippet["title"] == result][0]
 
     for command in snippet["commands"]:
@@ -238,10 +179,6 @@ def main():
 def modify():
     """Modify snippets."""
     result = fzf.prompt(show_snippet_titles())[0]
-    # uncomment next line if tags have been added to the strings
-    #
-    # result = re.sub(r'^\[[^\]]*\](?:\s*\[[^\]]*\])?\s*', '', chosen_snippet)
-
     # find the relevant file
     if result:
         for snippet_file in snippet_files:
@@ -256,11 +193,6 @@ def modify():
         commands = this_snippet["commands"]
         new_commands = curses.wrapper(lambda stdscr: tui(stdscr, commands))
         print(new_commands)
-    # First show all snippets
-    # short_names = [filepath.replace(snippet_directory, "") for filepath in snippet_files]
-    # clean_names = [jsonpath.replace(".json", "") for jsonpath in short_names]
-    # selected = snippet_directory + fzf.prompt(clean_names)[0] + ".json"
-    # subprocess.call(editor + " " + selected, shell=True)
 
 
 def get_snippet_by_title(snippets, title):
