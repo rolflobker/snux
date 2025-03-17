@@ -3,6 +3,7 @@
 **THIS IS A WORK IN PROGRESS. MIGHT NOT EVEN WORK**
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+
 **Table of Contents**
 
 - [SNUX - SNippets in tmUX **(WIP)**](#snux---snippets-in-tmux-wip)
@@ -13,14 +14,30 @@
 - [Filter by category](#filter-by-category)
 - [General](#general)
 - [Actions](#actions)
-    - [`sleep`](#sleep)
-    - [`execute`](#execute)
-    - [`send-to-pane`](#send-to-pane)
-    - [`ask`](#ask)
-    - [`select-from-list`](#select-from-list)
+  - [`sleep`](#sleep)
+  - [`execute`](#execute)
+  - [`send-to-pane`](#send-to-pane)
+  - [`ask`](#ask)
+  - [`select-from-list`](#select-from-list)
 
 <!-- markdown-toc end -->
 
+# quick start
+
+1. Clone this repo
+2. Clone snippets repo
+3. Add binding in tmux
+
+```bash
+git clone https://github.com/rolflobker/snux ~/.config/tmux/scripts/
+git clone https://github.com/rolflobker/snux-snippets ~/.config/snux/snippets/public
+echo 'bind C-u display-popup -h 60% -y 50% -w 70% -E "~/.config/tmux/scripts/snux/snux.py"' >> ~/.config/tmux/tmux.conf
+```
+
+Now press `C-b C-u` when in a tmux sessions.  
+Or launch `snyx.py` from a command line, which may provide output in case a pop-up does not work.
+
+## Overview
 
 Displays a list of (code) snippets in a TMUX popup and sends the selection to a (new) pane.
 
@@ -96,12 +113,12 @@ Each snippet file follows the following `json` format:
 
 ```json
 {
-    "schema": "file://$HOME/snux/snux-schema.json",
-    "snippets": [
+  "schema": "file://$HOME/snux/snux-schema.json",
+  "snippets": [
     {
       "title": "List contents of current directory",
       "description": "see title [unused for now]",
-      "tags": ["list","directory","ls"],
+      "tags": ["list", "directory", "ls"],
       "commands": [
         {
           "action": "send-to-pane",
@@ -109,7 +126,7 @@ Each snippet file follows the following `json` format:
           "enter": true
         }
       ]
-    },
+    }
   ]
 }
 ```
@@ -128,16 +145,14 @@ For faster creation of new code snippets see [completion](./docs/completion.md) 
 
 Presuming the snippet-files are category based:
 
-If the script is called with `--per-file` it will present a list of all the snippet files and then display only the snippets within the chosen file.  
+If the script is called with `--per-file` it will present a list of all the snippet files and then display only the snippets within the chosen file.
 
 Every snippet can have a string containing `tags`.
 These `tags` will be shown if the script is called normally by adding them before each title and put them in `[]` brackets
 
-
 # General
 
 Any `title` should be unique. Snux does string matching to find the snippet which has been selected.
-
 
 # Actions
 
@@ -149,12 +164,14 @@ Sleep for `x` seconds
 
 ```json
 {
-    "title": "Sleep for 5 seconds",
-    "description": "not implemented",
-    "commands": [{
-        "action": "sleep",
-        "seconds": 5
-    }]
+  "title": "Sleep for 5 seconds",
+  "description": "not implemented",
+  "commands": [
+    {
+      "action": "sleep",
+      "seconds": 5
+    }
+  ]
 }
 ```
 
@@ -168,12 +185,14 @@ A use case might be to execute something which gets used in a follow up action w
 
 ```json
 {
-    "title": "Execute something in this popupactive pane",
-    "description": "Do something in this Tmux popup",
-    "commands": [{
-        "action": "execute",
-        "code": "<something>"
-    }]
+  "title": "Execute something in this popupactive pane",
+  "description": "Do something in this Tmux popup",
+  "commands": [
+    {
+      "action": "execute",
+      "code": "<something>"
+    }
+  ]
 }
 ```
 
@@ -184,13 +203,15 @@ Use `"enter": true` to send a `Return` or `"enter": false` to leave the send lin
 
 ```json
 {
-    "title": "Send something to active pane",
-    "description": "not implemented",
-    "commands": [{
-        "action": "send-to-pane",
-        "code": "ls -lagh",
-        "enter": true
-    }]
+  "title": "Send something to active pane",
+  "description": "not implemented",
+  "commands": [
+    {
+      "action": "send-to-pane",
+      "code": "ls -lagh",
+      "enter": true
+    }
+  ]
 }
 ```
 
@@ -216,20 +237,20 @@ A simple prompt which stores the answer in a variable.
 
 ```json
 {
-    "title": "list contents of given folder",
-    "description": "not implemented",
-    "commands": [
-        {
-            "action": "ask",
-            "prompt": "which directory? : ",
-            "variable_name": "directory"
-        },
-        {
-            "action": "send-to-pane",
-            "code": "ls -lagh %{directory}",
-            "enter": true
-        }
-    ]
+  "title": "list contents of given folder",
+  "description": "not implemented",
+  "commands": [
+    {
+      "action": "ask",
+      "prompt": "which directory? : ",
+      "variable_name": "directory"
+    },
+    {
+      "action": "send-to-pane",
+      "code": "ls -lagh %{directory}",
+      "enter": true
+    }
+  ]
 }
 ```
 
@@ -237,19 +258,19 @@ A simple prompt which stores the answer in a variable.
 
 ```json
 {
-    "title": "list contents of given folder",
-    "description": "not implemented",
-    "commands": [
-        {
-            "action": "select-from-list",
-            "variable_name": "period",
-            "list": ["1h","2h","4h","1d"]
-        },
-        {
-            "action": "send-to-pane",
-            "code": "ls -lagh %{directory}",
-            "enter": true
-        }
-    ]
+  "title": "list contents of given folder",
+  "description": "not implemented",
+  "commands": [
+    {
+      "action": "select-from-list",
+      "variable_name": "period",
+      "list": ["1h", "2h", "4h", "1d"]
+    },
+    {
+      "action": "send-to-pane",
+      "code": "ls -lagh %{directory}",
+      "enter": true
+    }
+  ]
 }
 ```
